@@ -17,6 +17,7 @@ func main() {
 	router.HandleFunc("/api/v1/user/delete", userapi.Delete).Methods("DELETE")
 
 	err := http.ListenAndServe(":5000", router)
+
 	if err != nil {
 		panic(err)
 	}
