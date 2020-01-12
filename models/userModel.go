@@ -1,8 +1,9 @@
 package models
 
 import (
-	"GolangRestApi/entities"
 	"errors"
+
+	"github.com/PhongVX/golang-rest-api/entities"
 )
 
 var (

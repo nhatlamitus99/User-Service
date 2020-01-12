@@ -1,10 +1,12 @@
 package userapi
 
 import (
-	"GolangRestApi/entities"
-	"GolangRestApi/models"
 	"encoding/json"
 	"net/http"
+
+	"github.com/PhongVX/golang-rest-api/models"
+
+	"github.com/PhongVX/golang-rest-api/entities"
 )
 
 func FindUser(response http.ResponseWriter, request *http.Request) {
