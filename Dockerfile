@@ -1,6 +1,6 @@
 # Dockerfile References: https://docs.docker.com/engine/reference/builder/
 # Base image
-FROM  golang:1.12.7-alpine
+FROM  golang:1.12.7
 
 # Info
 LABEL maintainer="Phong Vo <phongvxk38@gmail.com>"
