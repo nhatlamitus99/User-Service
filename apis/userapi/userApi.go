@@ -2,12 +2,31 @@ package userapi
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
-	"github.com/PhongVX/golang-rest-api/models"
-
+	"github.com/PhongVX/golang-rest-api/db"
 	"github.com/PhongVX/golang-rest-api/entities"
+	"github.com/PhongVX/golang-rest-api/models"
 )
+
+func Authorize(response http.ResponseWriter, request *http.Request) {
+
+	var user entities.Owner
+	err := json.NewDecoder(request.Body).Decode(&user)
+	if err != nil {
+		responseWithError(response, http.StatusForbidden, err.Error())
+	}
+	pgdb := db.GetDB()
+	defer pgdb.Close()
+	res, err := pgdb.Query("select * from public.'Users'")
+	if err != nil {
+		fmt.Println("a", err)
+	} else {
+		fmt.Println("b", res)
+	}
+
+}
 
 func FindUser(response http.ResponseWriter, request *http.Request) {
 	ids, ok := request.URL.Query()["id"]
