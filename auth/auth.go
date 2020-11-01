@@ -78,12 +78,13 @@ func ExtractTokenID(r *http.Request) (uint32, error) {
 }
 
 //Pretty display the claims licely in the terminal
-func Pretty(data interface{}) {
+func Pretty(data interface{}) string {
 	b, err := json.MarshalIndent(data, "", " ")
 	if err != nil {
 		log.Println(err)
-		return
+		return err.Error()
 	}
 
 	fmt.Println(string(b))
+	return string(b)
 }

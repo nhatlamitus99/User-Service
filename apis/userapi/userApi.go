@@ -37,6 +37,15 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 
 }
 
+func GetResource(response http.ResponseWriter, request *http.Request) {
+	err := auth.TokenValid(request)
+	if err != nil {
+		responseWithError(response, http.StatusForbidden, err.Error())
+	} else {
+		responseWithJSON(response, http.StatusOK, "resource")
+	}
+}
+
 func FindUser(response http.ResponseWriter, request *http.Request) {
 	ids, ok := request.URL.Query()["id"]
 	if !ok || len(ids) < 1 {
