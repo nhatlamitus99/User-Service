@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/PhongVX/golang-rest-api/db"
+	"github.com/PhongVX/golang-rest-api/auth"
 	"github.com/PhongVX/golang-rest-api/entities"
 	"github.com/PhongVX/golang-rest-api/models"
 )
@@ -16,15 +16,24 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 	err := json.NewDecoder(request.Body).Decode(&user)
 	if err != nil {
 		responseWithError(response, http.StatusForbidden, err.Error())
-	}
-	pgdb := db.GetDB()
-	defer pgdb.Close()
-	res, err := pgdb.Query("select * from public.'Users'")
-	if err != nil {
-		fmt.Println("a", err)
 	} else {
-		fmt.Println("b", res)
+		token, err := auth.CreateToken(user.Username, user.Password)
+		if err != nil {
+			responseWithError(response, http.StatusForbidden, err.Error())
+		} else {
+			fmt.Println("OK")
+			responseWithJSON(response, http.StatusOK, token)
+		}
+
 	}
+	// pgdb := db.GetDB()
+	// defer pgdb.Close()
+	// res, err := pgdb.Query("select * from public.'Users'")
+	// if err != nil {
+	// 	fmt.Println("a", err)
+	// } else {
+	// 	fmt.Println("b", res)
+	// }
 
 }
 
