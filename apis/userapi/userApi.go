@@ -2,12 +2,67 @@ package userapi
 
 import (
 	"encoding/json"
+	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/PhongVX/golang-rest-api/models"
 
+	"Client/db"
+
 	"github.com/PhongVX/golang-rest-api/entities"
 )
+
+type User struct {
+	password string
+	username string
+}
+
+func Authorize(response http.ResponseWriter, request *http.Request) {
+
+	request.ParseForm()
+
+	var user User
+	for key, value := range request.Form {
+		if key == "username" {
+			user.username = value[0]
+		} else {
+			user.password = value[0]
+		}
+	}
+
+	log.Println(user.username, user.password)
+
+	pgdb := db.GetDB()
+	_, err := pgdb.Query("SELECT * FROM USER")
+
+	log.Println(err)
+
+	if user.password == "123" && user.username == "nhatlam" {
+		responseWithJSON(response, http.StatusOK, user.username)
+	} else {
+		responseWithJSON(response, http.StatusForbidden, "failed")
+	}
+
+}
+
+func GetInfo(response http.ResponseWriter, request *http.Request) {
+	users := models.GetAllUser()
+	responseWithJSON(response, http.StatusOK, users)
+}
+
+func RedirectToAuthServer(response http.ResponseWriter, request *http.Request) {
+
+	redirect_uri := "http://localhost:3000/authorize/callback"
+	response_type := "code"
+	client_id := "infoCustomer"
+
+	var path string
+	path = "http://localhost:3001/oauth/authorize?redirect_uri=" + redirect_uri + "?response_type=" + response_type + "?client_id=" + client_id
+	fmt.Println(path)
+
+	http.Redirect(response, request, path, 301)
+}
 
 func FindUser(response http.ResponseWriter, request *http.Request) {
 	ids, ok := request.URL.Query()["id"]
@@ -21,11 +76,6 @@ func FindUser(response http.ResponseWriter, request *http.Request) {
 		return
 	}
 	responseWithJSON(response, http.StatusOK, user)
-}
-
-func GetAll(response http.ResponseWriter, request *http.Request) {
-	users := models.GetAllUser()
-	responseWithJSON(response, http.StatusOK, users)
 }
 
 func CreateUser(response http.ResponseWriter, request *http.Request) {
