@@ -42,11 +42,6 @@ func FindUser(response http.ResponseWriter, request *http.Request) {
 	responseWithJSON(response, http.StatusOK, user)
 }
 
-func GetAll(response http.ResponseWriter, request *http.Request) {
-	users := models.GetAllUser()
-	responseWithJSON(response, http.StatusOK, users)
-}
-
 func CreateUser(response http.ResponseWriter, request *http.Request) {
 	var user entities.User
 	err := json.NewDecoder(request.Body).Decode(&user)
