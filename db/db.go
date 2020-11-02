@@ -1,10 +1,11 @@
 package db
 
 import (
-	"database/sql"
 	"fmt"
 
 	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 const (
@@ -15,15 +16,13 @@ const (
 	dbname   = "PTUDW"
 )
 
-func GetDB() *sql.DB {
+func GetDB() *gorm.DB {
+
+	//dsn := "user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	db, err := sql.Open("postgres", psqlInfo)
-	if err != nil {
-		panic(err)
-	}
-	err = db.Ping()
-	if err != nil {
-		panic(err)
-	}
+	// db, err := sql.Open("postgres", psqlInfo)
+	db, _ := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
+
 	return db
 }

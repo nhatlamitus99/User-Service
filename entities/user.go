@@ -1,12 +1,14 @@
 package entities
 
-type Owner struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+type TokenRequest struct {
+	Username      string `json:"name"`
+	Password      string `json:"password"`
+	Grant_Type    string `json:"grant-type"`
+	Client_Secret string `json:"client-secret"`
 }
 
-type User struct {
-	Id       string `json:"id"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
+type TokenResponse struct {
+	AccessToken string `json:"access_token"`
+	TokenType   string `json:"token_type"`
+	ExpiresIn   int64  `json:"expires_in"`
 }
