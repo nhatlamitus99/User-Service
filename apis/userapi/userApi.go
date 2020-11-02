@@ -23,7 +23,7 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 		if token_request.Grant_Type != "password" || !checkPermit(token_request.Username, token_request.Password) {
 			responseWithError(response, http.StatusForbidden, "forbidden password grant")
 		} else {
-			token, err := auth.CreateToken(token_request.Username, token_request.Password)
+			token, err := auth.CreateToken(token_request.Username, token_request.Password, token_request.Client_Secret)
 			if err != nil {
 				responseWithError(response, http.StatusForbidden, err.Error())
 			} else {
