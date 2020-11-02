@@ -3,9 +3,10 @@ package db
 import (
 	"fmt"
 
+	"database/sql"
+
+	"github.com/PhongVX/golang-rest-api/entities"
 	_ "github.com/lib/pq"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 const (
@@ -16,13 +17,23 @@ const (
 	dbname   = "PTUDW"
 )
 
-func GetDB() *gorm.DB {
+func GetDB(username, password string) entities.User {
 
-	//dsn := "user=gorm password=gorm dbname=gorm port=9920 sslmode=disable TimeZone=Asia/Shanghai"
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
+	db, err := sql.Open("postgres", psqlInfo)
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	defer db.Close()
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+"password=%s dbname=%s sslmode=disable", host, port, user, password, dbname)
-	// db, err := sql.Open("postgres", psqlInfo)
-	db, _ := gorm.Open(postgres.Open(psqlInfo), &gorm.Config{})
-
-	return db
+	var user entities.User
+	query := fmt.Sprintf("select username, email, phone from \"Users\" where username = '%s';", username)
+	fmt.Println(query)
+	err = db.QueryRow(query).Scan(&user.Username, &user.Email, &user.Phone)
+	if err != nil {
+		fmt.Println("Failed to query database", err.Error())
+	} else {
+		fmt.Println(user.Username, user.Email, user.Phone)
+	}
+	return user
 }

@@ -4,8 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"time"
 
 	"github.com/PhongVX/golang-rest-api/auth"
+	"github.com/PhongVX/golang-rest-api/db"
 	"github.com/PhongVX/golang-rest-api/entities"
 )
 
@@ -18,7 +20,7 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 		responseWithError(response, http.StatusForbidden, err.Error())
 	} else {
 
-		if token_request.Grant_Type != "password" {
+		if token_request.Grant_Type != "password" || !checkPermit(token_request.Username, token_request.Password) {
 			responseWithError(response, http.StatusForbidden, "forbidden password grant")
 		} else {
 			token, err := auth.CreateToken(token_request.Username, token_request.Password)
@@ -28,7 +30,7 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 				requestBody, err := json.Marshal(map[string]string{
 					"access_token": token,
 					"token_type":   "Bearer",
-					"expires_in":   "3600",
+					"expires_in":   string(time.Now().Add(time.Hour * 1).Unix()),
 				})
 
 				if err != nil {
@@ -45,12 +47,6 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 		}
 
 	}
-	// pgdb := db.GetDB()
-
-	// var user entities.User
-	// data := pgdb.Select("username").Find(&user)
-
-	// fmt.Println(data)
 
 }
 
@@ -59,8 +55,18 @@ func GetResource(response http.ResponseWriter, request *http.Request) {
 	if err != nil {
 		responseWithError(response, http.StatusForbidden, err.Error())
 	} else {
-		responseWithJSON(response, http.StatusOK, "get protected resource successfully")
+		data := db.GetDB("nhatlam", "")
+		responseWithJSON(response, http.StatusOK, data)
 	}
+}
+
+func checkPermit(username, password string) bool {
+	user := db.GetDB(username, password)
+	if user.Username == "" {
+		return false
+	}
+	return true
+
 }
 
 func responseWithError(response http.ResponseWriter, statusCode int, msg string) {

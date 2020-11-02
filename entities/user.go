@@ -12,3 +12,21 @@ type TokenResponse struct {
 	TokenType   string `json:"token_type"`
 	ExpiresIn   int64  `json:"expires_in"`
 }
+
+type User struct {
+	Id       string `json:"id"`
+	Username string `json:"username"`
+	Fullname string `json:"fullname"`
+	Email    string `json:"email"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+	CreateAt string `json:"createAt"`
+	UpdateAt string `json:"updateAt"`
+}
+
+type Data struct {
+	Id       string `json:"id"`
+	Name     string `json:"name"`
+	CreateAt string `json:"createAt"`
+	UpdateAt string `json:"updateAt"`
+}
