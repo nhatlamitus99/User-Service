@@ -12,6 +12,7 @@ import (
 	"github.com/PhongVX/golang-rest-api/entities"
 )
 
+// receive username - password from client -> authentication -> generate access token and POST request to client
 func Authorize(response http.ResponseWriter, request *http.Request) {
 
 	var tokenRequest entities.TokenRequest
@@ -49,6 +50,7 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// get access token from client -> return resource
 func GetResource(response http.ResponseWriter, request *http.Request) {
 	err, data := auth.TokenValid(request)
 	if err != nil {
@@ -59,6 +61,7 @@ func GetResource(response http.ResponseWriter, request *http.Request) {
 	}
 }
 
+// authenticate resource owner by access token
 func checkPermit(request entities.TokenRequest) bool {
 	user := db.GetData(request.Username, request.Password)
 	if user.Username != "nhatlam" {
