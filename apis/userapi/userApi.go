@@ -21,7 +21,7 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 		responseWithError(response, http.StatusForbidden, err.Error())
 	} else {
 		if tokenRequest.Grant_Type != "password" || !checkPermit(tokenRequest) {
-			responseWithError(response, http.StatusForbidden, "forbidden password grant")
+			responseWithError(response, http.StatusForbidden, "Unauthorized")
 		} else {
 			os.Setenv("SECRET_KEY", tokenRequest.Client_Secret)
 			token, err := auth.CreateToken(tokenRequest.Username, tokenRequest.Password)
