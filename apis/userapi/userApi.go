@@ -64,10 +64,10 @@ func GetResource(response http.ResponseWriter, request *http.Request) {
 // authenticate resource owner by access token
 func checkPermit(request entities.TokenRequest) bool {
 	user := db.GetData(request.Username, request.Password)
-	if user.Username != "nhatlam" {
-		return false
+	if user.Username != "" {
+		return true
 	}
-	return true
+	return false
 
 }
 
