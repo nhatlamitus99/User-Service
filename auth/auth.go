@@ -10,35 +10,41 @@ import (
 	"strings"
 	"time"
 
+	"github.com/PhongVX/golang-rest-api/entities"
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-func CreateToken(username, password, secret_key string) (string, error) {
+func CreateToken(username, password string) (string, error) {
 	claims := jwt.MapClaims{}
 	claims["authorized"] = true
 	claims["password"] = password
 	claims["username"] = username
 	claims["exp"] = time.Now().Add(time.Hour * 1).Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	return token.SignedString([]byte(os.Getenv(secret_key)))
+	fmt.Println("key", os.Getenv("SECRET_KEY"))
+	return token.SignedString([]byte(os.Getenv("SECRET_KEY")))
 
 }
 
-func TokenValid(r *http.Request) error {
+func TokenValid(r *http.Request) (error, entities.Data) {
+	data := entities.Data{}
 	tokenString := ExtractToken(r)
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 		}
-		return []byte(os.Getenv("API_SECRET")), nil
+		return []byte(os.Getenv("SECRET_KEY")), nil
 	})
 	if err != nil {
-		return err
+		return err, data
 	}
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		fmt.Println(claims)
+		data.Username = claims["username"].(string)
+		data.Password = claims["password"].(string)
 		Pretty(claims)
 	}
-	return nil
+	return nil, data
 }
 
 func ExtractToken(r *http.Request) string {
@@ -77,7 +83,6 @@ func ExtractTokenID(r *http.Request) (uint32, error) {
 	return 0, nil
 }
 
-//Pretty display the claims licely in the terminal
 func Pretty(data interface{}) string {
 	b, err := json.MarshalIndent(data, "", " ")
 	if err != nil {

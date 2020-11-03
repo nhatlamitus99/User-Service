@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/PhongVX/golang-rest-api/auth"
@@ -13,17 +14,17 @@ import (
 
 func Authorize(response http.ResponseWriter, request *http.Request) {
 
-	var token_request entities.TokenRequest
-	err := json.NewDecoder(request.Body).Decode(&token_request)
+	var tokenRequest entities.TokenRequest
+	err := json.NewDecoder(request.Body).Decode(&tokenRequest)
 
 	if err != nil {
 		responseWithError(response, http.StatusForbidden, err.Error())
 	} else {
-
-		if token_request.Grant_Type != "password" || !checkPermit(token_request.Username, token_request.Password) {
+		if tokenRequest.Grant_Type != "password" || !checkPermit(tokenRequest) {
 			responseWithError(response, http.StatusForbidden, "forbidden password grant")
 		} else {
-			token, err := auth.CreateToken(token_request.Username, token_request.Password, token_request.Client_Secret)
+			os.Setenv("SECRET_KEY", tokenRequest.Client_Secret)
+			token, err := auth.CreateToken(tokenRequest.Username, tokenRequest.Password)
 			if err != nil {
 				responseWithError(response, http.StatusForbidden, err.Error())
 			} else {
@@ -45,24 +46,22 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 				}
 			}
 		}
-
 	}
-
 }
 
 func GetResource(response http.ResponseWriter, request *http.Request) {
-	err := auth.TokenValid(request)
+	err, data := auth.TokenValid(request)
 	if err != nil {
 		responseWithError(response, http.StatusForbidden, err.Error())
 	} else {
-		data := db.GetDB("nhatlam", "")
-		responseWithJSON(response, http.StatusOK, data)
+		resource := db.GetData(data.Username, data.Password)
+		responseWithJSON(response, http.StatusOK, resource)
 	}
 }
 
-func checkPermit(username, password string) bool {
-	user := db.GetDB(username, password)
-	if user.Username == "" {
+func checkPermit(request entities.TokenRequest) bool {
+	user := db.GetData(request.Username, request.Password)
+	if user.Username != "nhatlam" {
 		return false
 	}
 	return true
