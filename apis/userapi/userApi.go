@@ -20,34 +20,31 @@ func Authorize(response http.ResponseWriter, request *http.Request) {
 
 	if err != nil {
 		responseWithError(response, http.StatusForbidden, err.Error())
-	} else {
-		if tokenRequest.Grant_Type != "password" || !checkPermit(tokenRequest) {
-			responseWithError(response, http.StatusForbidden, "Unauthorized")
-		} else {
-			os.Setenv("SECRET_KEY", tokenRequest.Client_Secret)
-			token, err := auth.CreateToken(tokenRequest.Username, tokenRequest.Password)
-			if err != nil {
-				responseWithError(response, http.StatusForbidden, err.Error())
-			} else {
-				requestBody, err := json.Marshal(map[string]string{
-					"access_token": token,
-					"token_type":   "Bearer",
-					"expires_in":   string(time.Now().Add(time.Hour * 1).Unix()),
-				})
-
-				if err != nil {
-					responseWithError(response, http.StatusBadRequest, err.Error())
-				} else {
-					resp, err := http.Post("http://127.0.0.1:4000/api/resource", "application/json", bytes.NewBuffer(requestBody))
-					if err != nil {
-						responseWithError(response, http.StatusBadRequest, err.Error())
-					}
-					defer resp.Body.Close()
-
-				}
-			}
-		}
 	}
+
+	if tokenRequest.Grant_Type != "password" || !checkPermit(tokenRequest) {
+		responseWithError(response, http.StatusForbidden, "Unauthorized")
+	}
+	os.Setenv("SECRET_KEY", tokenRequest.Client_Secret)
+	token, err := auth.CreateToken(tokenRequest.Username, tokenRequest.Password)
+	if err != nil {
+		responseWithError(response, http.StatusForbidden, err.Error())
+	}
+	requestBody, err := json.Marshal(map[string]string{
+		"access_token": token,
+		"token_type":   "Bearer",
+		"expires_in":   string(time.Now().Add(time.Hour * 1).Unix()),
+	})
+	if err != nil {
+		responseWithError(response, http.StatusBadRequest, err.Error())
+	}
+	resp, err := http.Post("http://127.0.0.1:4000/api/resource", "application/json", bytes.NewBuffer(requestBody))
+	if err != nil {
+		responseWithError(response, http.StatusBadRequest, err.Error())
+	}
+	responseWithJSON(response, http.StatusOK, token)
+	defer resp.Body.Close()
+
 }
 
 // get access token from client -> return resource
