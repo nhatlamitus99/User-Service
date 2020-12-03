@@ -1,70 +1,60 @@
 package userapi
 
 import (
-	"bytes"
 	"encoding/json"
 	"net/http"
-	"os"
-	"time"
+	"strconv"
 
-	"github.com/PhongVX/golang-rest-api/auth"
 	"github.com/PhongVX/golang-rest-api/db"
-	"github.com/PhongVX/golang-rest-api/entities"
 )
 
-// receive username - password from client -> authentication -> generate access token and POST request to client
-func Authorize(response http.ResponseWriter, request *http.Request) {
+func GetUser(response http.ResponseWriter, request *http.Request) {
 
-	var tokenRequest entities.TokenRequest
-	err := json.NewDecoder(request.Body).Decode(&tokenRequest)
+	id := request.Header.Get("id")
+	idUser, _ := strconv.Atoi(id)
+	user := db.GetUser(idUser)
 
-	if err != nil {
-		responseWithError(response, http.StatusForbidden, err.Error())
-	}
-
-	if tokenRequest.Grant_Type != "password" || !checkPermit(tokenRequest) {
-		responseWithError(response, http.StatusForbidden, "Unauthorized")
-	}
-	os.Setenv("SECRET_KEY", tokenRequest.Client_Secret)
-	token, err := auth.CreateToken(tokenRequest.Username, tokenRequest.Password)
-	if err != nil {
-		responseWithError(response, http.StatusForbidden, err.Error())
-	}
-	requestBody, err := json.Marshal(map[string]string{
-		"access_token": token,
-		"token_type":   "Bearer",
-		"expires_in":   string(time.Now().Add(time.Hour * 1).Unix()),
-	})
-	if err != nil {
-		responseWithError(response, http.StatusBadRequest, err.Error())
-	}
-	resp, err := http.Post("http://127.0.0.1:4000/api/resource", "application/json", bytes.NewBuffer(requestBody))
-	if err != nil {
-		responseWithError(response, http.StatusBadRequest, err.Error())
-	}
-	responseWithJSON(response, http.StatusOK, token)
-	defer resp.Body.Close()
+	responseWithJSON(response, http.StatusOK, user)
 
 }
 
-// get access token from client -> return resource
-func GetResource(response http.ResponseWriter, request *http.Request) {
-	err, data := auth.TokenValid(request)
-	if err != nil {
-		responseWithError(response, http.StatusForbidden, err.Error())
-	} else {
-		resource := db.GetData(data.Username, data.Password)
-		responseWithJSON(response, http.StatusOK, resource)
-	}
+func ListUser(response http.ResponseWriter, request *http.Request) {
+
+	id := request.Header.Get("id")
+	idUser, _ := strconv.Atoi(id)
+	user := db.GetUser(idUser)
+
+	responseWithJSON(response, http.StatusOK, user)
+
 }
 
-// authenticate resource owner by access token
-func checkPermit(request entities.TokenRequest) bool {
-	user := db.GetData(request.Username, request.Password)
-	if user.Username != "" {
-		return true
-	}
-	return false
+func CreateUser(response http.ResponseWriter, request *http.Request) {
+
+	id := request.Header.Get("id")
+	idUser, _ := strconv.Atoi(id)
+	user := db.GetUser(idUser)
+
+	responseWithJSON(response, http.StatusOK, user)
+
+}
+
+func UpdateUser(response http.ResponseWriter, request *http.Request) {
+
+	id := request.Header.Get("id")
+	idUser, _ := strconv.Atoi(id)
+	user := db.GetUser(idUser)
+
+	responseWithJSON(response, http.StatusOK, user)
+
+}
+
+func DeleteUser(response http.ResponseWriter, request *http.Request) {
+
+	id := request.Header.Get("id")
+	idUser, _ := strconv.Atoi(id)
+	user := db.GetUser(idUser)
+
+	responseWithJSON(response, http.StatusOK, user)
 
 }
 

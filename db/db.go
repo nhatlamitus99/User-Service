@@ -17,17 +17,45 @@ const (
 	dbname = "PTUDW"
 )
 
-func GetData(username, password string) entities.User {
-
+func connectDB() (*sql.DB, error) {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", host, port, user, pass, dbname)
 	db, err := sql.Open("postgres", psqlInfo)
 	if err != nil {
-		fmt.Println(err.Error())
+		return nil, err
+	}
+	return db, nil
+}
+
+func GetUser(id int) entities.User {
+	var user entities.User
+
+	db, err := connectDB()
+	if err != nil {
+		return user
 	}
 	defer db.Close()
 
-	var user entities.User
-	query := fmt.Sprintf("select username, email, phone from \"Users\" where username = '%s';", username)
+	query := fmt.Sprintf("select username, email, phone from \"Users\" where id = '%s';", id)
 	err = db.QueryRow(query).Scan(&user.Username, &user.Email, &user.Phone)
 	return user
+}
+
+func ListUser() []entities.User {
+	// TODO
+	return nil
+}
+
+func CreateUser(user entities.User) bool {
+	// TODO
+	return true
+}
+
+func UpdateUser(id int) bool {
+	// TODO
+	return true
+}
+
+func Delete(id int) bool {
+	// TODO
+	return true
 }
