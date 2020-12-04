@@ -45,17 +45,17 @@ func ListUser() []entities.User {
 	return nil
 }
 
-func CreateUser(user entities.User) bool {
+func CreateUser(user entities.User) error {
 	// TODO
-	return true
+	return nil
 }
 
-func UpdateUser(id int) bool {
+func UpdateUser(user entities.User) error {
 	// TODO
-	return true
+	return nil
 }
 
-func Delete(id int) bool {
+func Delete(id int) error {
 	// TODO
-	return true
+	return nil
 }

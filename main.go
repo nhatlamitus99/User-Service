@@ -14,7 +14,7 @@ func main() {
 
 	router.HandleFunc("/api/v1/user/{id}", userapi.GetUser).Methods("GET")
 	router.HandleFunc("/api/v1/users", userapi.ListUser).Methods("GET")
-	router.HandleFunc("/api/v1/user/{id}", userapi.CreateUser).Methods("POST")
+	router.HandleFunc("/api/v1/user", userapi.CreateUser).Methods("POST")
 	router.HandleFunc("/api/v1/user/{id}", userapi.UpdateUser).Methods("PATCH")
 	router.HandleFunc("/api/v1/user/{id}", userapi.DeleteUser).Methods("DELETE")
 
